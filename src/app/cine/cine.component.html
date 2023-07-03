@@ -1,0 +1,39 @@
+<h2>Taquilla Cine BMZ</h2>
+
+<div class="container">
+  <form [formGroup]="boletosForm" (ngSubmit)="comprarBoletos()" class="mt-4">
+    <div class="form-group">
+      <label>Nombre:</label>
+      <input type="text" formControlName="nombre" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label>Cantidad de boletos:</label>
+      <input type="number" formControlName="cantidadBoletos" class="form-control">
+    </div>
+
+    <div class="form-group form-check">
+      <input type="checkbox" formControlName="tarjetaCineco" class="form-check-input">
+      <label class="form-check-label">Tarjeta CINECO</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Comprar</button>
+  </form>
+
+  <table *ngIf="compraRealizada" class="table mt-4">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Cantidad de Boletos</th>
+        <th>Valor a pagar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{{ nombre }}</td>
+        <td>{{ cantidadBoletos }}</td>
+        <td>{{ valorPagar | currency }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
