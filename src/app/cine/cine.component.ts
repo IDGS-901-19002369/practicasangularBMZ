@@ -12,6 +12,7 @@ export class CineComponent {
   valorPagar: number = 0;
   nombre: string = '';
   cantidadBoletos: number = 0;
+  maxboletos: number = 0;
 
   constructor(private formBuilder: FormBuilder) { }
 
@@ -19,11 +20,19 @@ export class CineComponent {
     this.boletosForm = this.formBuilder.group({
       nombre: ['', Validators.required],
       cantidadBoletos: ['', Validators.required],
+      cantidadCompradores:['',Validators.required],
       tarjetaCineco: [false]
     });
   }
 
   comprarBoletos() {
+
+    this.maxboletos = this.boletosForm.value.cantidadCompradores*7
+    
+    if(this.boletosForm.value.cantidadBoletos>this.maxboletos){
+      return alert('Se ha excedido a la cantidad estimada')
+    }
+
     if (this.boletosForm.valid) {
       const nombre = this.boletosForm.value.nombre;
       const cantidadBoletos = this.boletosForm.value.cantidadBoletos;
@@ -37,7 +46,7 @@ export class CineComponent {
         descuento = 0.1;
       }
 
-      let valorBase = cantidadBoletos * 12000;
+      let valorBase = cantidadBoletos * 12;
       let descuentoTotal = valorBase * descuento;
       let valorPagar = valorBase - descuentoTotal;
 

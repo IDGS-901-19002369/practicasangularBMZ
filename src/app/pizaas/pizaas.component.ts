@@ -1,19 +1,6 @@
-import { Component, OnInit} from '@angular/core';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, FormControl } from '@angular/forms';
 
-interface Cliente {
-  nombre: string;
-  direccion: string;
-  telefono: string;
-  fechaCompra: string;
-}
-
-interface pizzas  {
-  tamanho: '',
-  ingredientes: [],
-  numeroPizzas: 0,
-  subtotal: 0
-};
 
 @Component({
   selector: 'app-pizaas',
@@ -22,89 +9,112 @@ interface pizzas  {
 })
 
 export class PizaasComponent implements OnInit{
-  cliente: Cliente = {
-    nombre: 'Bernardo',
-    direccion: 'olivos',
-    telefono: '4778427540',
-    fechaCompra: '02/07/2023'
-  };
-
-  pizza: pizzas = {
-    tamanho: '',
-    ingredientes: [],
-    numeroPizzas: 0,
-    subtotal: 0,
-  };
-
-  pizzasForm!: FormGroup;
-  detallePedido: any[] = [];
-  // cliente = [
-  //   {nombre: String},
-  //   {direccion: String},
-  //   {telefono: String},
-  //   {fechaCompra: String},
-  // ];
-  ingredientes = [
-    { nombre: 'Jamón' },
-    { nombre: 'Queso' },
-    { nombre: 'Tomate' },
-    { nombre: 'Pepperoni' },
+  pizzaForm!: FormGroup;
+  pizzaDetalles: any[] = [
+    
   ];
 
-  constructor(private formBuilder: FormBuilder) { }
+  mostrarConfirmacion: boolean = false;
+
+  constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
-    this.pizzasForm = this.formBuilder.group({
-      cliente:['',Validators.required],
-      nombre: ['', Validators.required],
-      direccion: ['', Validators.required],
-      telefono: ['', Validators.required],
-      fechaCompra: ['', Validators.required],
-      tamanho: ['', Validators.required],
-      ingredientes: ['', Validators.required],
-      numeroPizzas: ['', Validators.required]
+    this.pizzaForm = this.fb.group({
+      cantidad: new FormControl(1),
+      nombre: new FormControl(''),
+      direccion: new FormControl(''),
+      telefono: new FormControl(''),
+      tamano: new FormControl(''),
+      jamon: new FormControl(false),
+      pina: new FormControl(false),
+      champinones: new FormControl(false),
+      fecha: new FormControl(''),
     });
   }
 
-  
+  onSubmit(): void {
+    this.agregarPizza();
+  }
 
   agregarPizza() {
-    const pizza = this.pizzasForm.value;
-    pizza.subtotal = this.calcularSubtotal(pizza);
-    this.detallePedido.push(pizza);
-    this.pizzasForm.reset();
+    const pizza = {
+      tamano: this.pizzaForm.get('tamano')?.value,
+      ingredientes: this.getIngredientesSeleccionados(),
+      cantidad: this.pizzaForm.get('cantidad')?.value,
+      subtotal: this.calcularSubtotal(),
+      nombre: this.pizzaForm.get('nombre')?.value,
+      direccion: this.pizzaForm.get('direccion')?.value,
+      telefono: this.pizzaForm.get('telefono')?.value,
+      fecha: this.pizzaForm.get('fecha')?.value
+    };
+
+    this.pizzaDetalles.push(pizza);
+    console.log(this.pizzaDetalles);
+
+    
   }
 
-  quitarPizza(index: number) {
-   this.detallePedido.splice(index, 1);
-   this.calcularSubtotal(this.quitarPizza);
+  eliminarPizza(pizza: any) {
+    const index = this.pizzaDetalles.indexOf(pizza);
+    if (index !== -1) {
+      this.pizzaDetalles.splice(index, 1);
+    }
+  }
+
+  getIngredientesSeleccionados() {
+    const ingredientes: string[] = [];
+    const formValue = this.pizzaForm.value;
+
+    if (formValue.jamon) {
+      ingredientes.push('Jamón');
+    }
+    if (formValue.pina) {
+      ingredientes.push('Piña');
+    }
+    if (formValue.champinones) {
+      ingredientes.push('Champiñones');
     }
 
-  getIngredientes(pizza: any) {
-    const ingredientesSeleccionados = Object.keys(pizza.ingredientes)
-      .filter(ingredientes => pizza.ingredientes[ingredientes])
-      .join(', ');
-    return ingredientesSeleccionados;
+    return ingredientes;
   }
 
-  calcularSubtotal(pizza: any) {
-    let precioBase: number;
-    switch (pizza.tamanho) {
-      case 'Pequeña':
-        precioBase = 8;
-        break;
-      case 'Mediana':
-        precioBase = 10;
-        break;
-      case 'Grande':
-        precioBase = 12;
-        break;
+  calcularSubtotal() {
+    let subtotal = 0;
+    const formValue = this.pizzaForm.value;
+
+    if (formValue.tamano === 'Chica') {
+      subtotal = 40;
+    } else if (formValue.tamano === 'Mediana') {
+      subtotal = 80;
+    } else if (formValue.tamano === 'Grande') {
+      subtotal = 120;
     }
-    const ingredientesSeleccionados = Object.keys(pizza.ingredientes)
-      .filter(ingredientes => pizza.ingredientes[ingredientes]);
-    const precioIngredientes = ingredientesSeleccionados.length * 1.5;
-    return (pizza.precioBase + precioIngredientes) * pizza.numeroPizzas;
+
+    const ingredientesSeleccionados = this.getIngredientesSeleccionados();
+    subtotal += ingredientesSeleccionados.length * 10;
+
+    return subtotal * formValue.cantidad;
   }
-  
+
+  finalizarCompra() {
+    this.mostrarConfirmacion = true;
+  }
+
+  confirmarPedido() {
+ 
+    console.log('Pedido confirmado');
+    this.mostrarConfirmacion = false;
+  }
+
+  editarPedido() {
+    this.mostrarConfirmacion = false;
+  }
+
+  calcularTotal(): number {
+    let total = 0;
+    for (const pizza of this.pizzaDetalles) {
+      total += pizza.subtotal;
+    }
+    return total;
+  }
 }
-

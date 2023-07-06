@@ -1,81 +1,126 @@
-<div class="container mt-3">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h4>Registro de Pedido de Pizzas</h4>
-        </div>
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Pizzeria BMZ</h5>
+    </div>
 
-        <div class="card-body">
-          <form [formGroup]="pizzasForm" (ngSubmit)="agregarPizza()">
+    <div class="card-body mt-4">
+      <form (ngSubmit)="onSubmit()" [formGroup]="pizzaForm">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Datos del cliente</h4>
             <div class="form-group">
-              <label for="nombre">Nombre completo:</label>
-              <input type="text" class="form-control" id="nombre" formControlName="nombre" required>
+              <label for="nombre">Nombre</label>
+              <input class="form-control" type="text" formControlName="nombre" id="nombre">
             </div>
+
             <div class="form-group">
-              <label for="direccion">Dirección:</label>
-              <input type="text" class="form-control" id="direccion" formControlName="direccion" required>
+              <label for="direccion">Dirección</label>
+              <input class="form-control" type="text" formControlName="direccion" id="direccion">
             </div>
+
             <div class="form-group">
-              <label for="telefono">Teléfono:</label>
-              <input type="text" class="form-control" id="telefono" formControlName="telefono" required>
+              <label for="telefono">Teléfono</label>
+              <input class="form-control" type="text" formControlName="telefono" id="telefono">
             </div>
+
             <div class="form-group">
-              <label for="fechaCompra">Fecha de compra:</label>
-              <input type="date" class="form-control" id="fechaCompra" formControlName="fechaCompra" required>
+              <label for="fecha">Fecha</label>
+              <input class="form-control" type="date" formControlName="fecha" id="fecha">
             </div>
+          </div>
+
+          <div class="col-md-6">
+            <h4>Datos de la pizza</h4>
             <div class="form-group">
-              <label for="tamanho">Tamaño:</label>
-              <select class="form-control" id="tamanho" formControlName="tamanho" required>
-                <option value="" disabled selected>Seleccione un tamaño</option>
-                <option value="Pequeña">Pequeña</option>
-                <option value="Mediana">Mediana</option>
-                <option value="Grande">Grande</option>
+              <label for="tamano">Tamaño</label>
+              <select class="form-control" formControlName="tamano" id="tamano">
+                <option value="Chica">Chica $40</option>
+                <option value="Mediana">Mediana $80</option>
+                <option value="Grande">Grande $120</option>
               </select>
             </div>
+
+            <h5>Ingredientes</h5>
             <div class="form-group">
-              <label>Ingredientes:</label>
-              <div class="form-check" *ngFor="let ingrediente of ingredientes">
-                <input type="checkbox" class="form-check-input" [id]="ingrediente.nombre" [formControlName]="ingrediente.nombre">
-                <label class="form-check-label" [for]="ingrediente.nombre">{{ ingrediente.nombre }}</label>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" formControlName="jamon" id="jamon">
+                <label class="form-check-label" for="jamon">Jamón $10</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" formControlName="pina" id="pina">
+                <label class="form-check-label" for="pina">Piña $10</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" formControlName="champinones" id="champinones">
+                <label class="form-check-label" for="champinones">Champiñones $10</label>
               </div>
             </div>
+
             <div class="form-group">
-              <label for="numeroPizzas">Número de pizzas:</label>
-              <input type="number" class="form-control" id="numeroPizzas" formControlName="numeroPizzas" required>
+              <label for="cantidad">Número de pizzas</label>
+              <input class="form-control" type="number" formControlName="cantidad" id="cantidad">
             </div>
-            <button type="submit" class="btn btn-primary">Agregar Pizza</button>
-          </form>
+
+            <div class="form-group">
+              <button class="btn btn-primary" type="submit">Agregar</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </form>
+
+<div class="row mt-4">
+  <div class="col-md-12">
+    <h4>Resumen de la orden</h4>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Tamaño</th>
+            <th>Ingredientes</th>
+            <th>Número de pizzas</th>
+            <th>Subtotal</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pizza of pizzaDetalles">
+            <td>{{ pizza.tamano }}</td>
+            <td>{{ pizza.ingredientes.join(', ') }}</td>
+            <td>{{ pizza.cantidad }}</td>
+            <td>{{ pizza.subtotal }}</td>
+            <td>
+              <button class="btn btn-danger" (click)="eliminarPizza(pizza)">Quitar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="table table-striped">
+      <div class="col-md-6 mt-5">
+  <div *ngIf="mostrarConfirmacion">
+    <h4>Confirmación de pedido</h4>
+    <ng-container *ngFor="let pizza of pizzaDetalles; let isFirst = first">
+      <p *ngIf="isFirst">Cliente: {{ pizza.nombre }}</p>
+    </ng-container>
+    <ng-container *ngFor="let pizza of pizzaDetalles; let isFirst = first">
+      <p *ngIf="isFirst">Domicilio: {{ pizza.direccion }}</p>
+    </ng-container>
+    <ng-container *ngFor="let pizza of pizzaDetalles; let isFirst = first">
+      <p *ngIf="isFirst">Telefono: {{ pizza.telefono }}</p>
+    </ng-container>
+    <ng-container *ngFor="let pizza of pizzaDetalles; let isFirst = first">
+      <p *ngIf="isFirst">Fecha: {{ pizza.fecha }}</p>
+    </ng-container>
+    <p>El costo total del pedido es: $ {{ calcularTotal() }}</p>
+  </div>
+</div>
+</table>
+<div class="row">
+  <div class="col-md-12">
+    <button class="btn btn-primary mx-2" (click)="finalizarCompra()">Terminar</button>
+  </div>
+</div>
     </div>
   </div>
+</div>
 
-  <div class="row mt-3">
-    <div class="col-md-6">
-      <div class="card">
-        <div class="card-header">
-          <h4>Detalle del Pedido</h4>
-        </div>
-        <div class="card-body">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Cliente</th>
-                <th>Tamaño</th>
-                <th>Ingredientes</th>
-                <th>Número de Pizzas</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let pizza of detallePedido">
-                <td>{{cliente}}</td>
-                <td>{{ pizza.tamanho }}</td>
-                <td>{{ getIngredientes(pizza) }}</td>
-                <td>{{ pizza.cantidad }}</td>
-                <td>{{ calcularSubtotal(pizza) }}</td>
-                <td>
-                    <button class="btn btn-danger" (click)="quitarPizza(pizza)">Quitar</button>
-                </td>
-            </tr>
